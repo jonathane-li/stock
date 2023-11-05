@@ -1,0 +1,80 @@
+package org.example;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+public class crawler {
+    String urlstart = "https://www.google.com/search?q=";
+
+    public List<String> generateURL(List<String> list){
+        List<String> listURL = new LinkedList<>();
+        for(String t: list){
+            String temp = urlstart + t + "+stock";
+            listURL.add(temp);
+        }
+        return listURL;
+    }
+
+    public List<String> generateStockName(List<String> list) throws IOException {
+
+        String starts = "https";
+        List<String> ans = new LinkedList<>();
+        if(list.get(0).startsWith(starts)){
+            ans = generateNameURL(list);
+            return ans;
+        }else{
+           ans = generateNameSymbol(list);
+        }
+        return ans;
+    }//Check wether or not its symbol or url, generate stock name
+    private List<String> generateNameURL(List<String> url){
+
+        List<String> names = new LinkedList<>();
+        String query = "div.PZPZlf.ssJ7i.B5dxMb";
+
+
+
+        for(String urls: url){
+            try{
+                Document document = Jsoup.connect(urls).get();
+                String temp = document.select(query).text();
+                names.add(temp);
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+
+        return names;
+
+
+    } //Generate name with url
+    private List<String> generateNameSymbol(List<String> symbol) throws IOException{
+        String query = "div.PZPZlf.ssJ7i.B5dxMb";
+        List<String> urls = generateURL(symbol);
+        List<String> ans = new LinkedList<>();
+
+        for(String url: urls){
+            try{
+                Document document = Jsoup.connect(url).get();
+                String name = document.select(query).text();
+                ans.add(name);
+
+
+            }catch(IOException e){
+                e.printStackTrace();
+
+            }
+        }
+        return ans;
+
+    } // Generate name with symbol
+
+
+}
